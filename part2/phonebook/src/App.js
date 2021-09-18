@@ -15,11 +15,11 @@ const App = () => {
   }, [])
 
   const handleNameChange = (e) => {
-    setNewPerson({ ...newPerson, name: e.target.value, id: Math.max.apply(Math, persons.map(o => o.id)) + 1 })
+    setNewPerson({ ...newPerson, name: e.target.value, id: Math.max(...persons.map(o => o.id)) + 1 })
   }
 
   const handleNumberChange = (e) => {
-    setNewPerson({ ...newPerson, number: e.target.value, id: Math.max.apply(Math, persons.map(o => o.id)) + 1 })
+    setNewPerson({ ...newPerson, number: e.target.value, id: Math.max(...persons.map(o => o.id)) + 1 })
   }
 
   const handleFilterChange = (e) => {
