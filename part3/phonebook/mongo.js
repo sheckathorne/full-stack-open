@@ -1,30 +1,39 @@
 const mongoose = require('mongoose')
 
+
+const getUrl = (password) => `mongodb+srv://fullstack:${password}@cluster0.ltofs.mongodb.net/phonebook?retryWrites=true&w=majority`
+
 if (process.argv.length < 3) {
   console.log('Please provide the password as an argument: node mongo.js <password>')
   process.exit(1)
 }
 
-const password = process.argv[2]
+if (process.argv.length >= 3) {
+	mongoose.connect(getUrl(process.argv[2]))
 
-const url =
-  `mongodb+srv://fullstack:${password}@cluster0.ltofs.mongodb.net/phonebook?retryWrites=true&w=majority`
+	const personSchema = new mongoose.Schema({
+	  name: String,
+	  number: String,},{collection: 'persons'})
+		
+	const Person = mongoose.model('Person', personSchema)
 
-mongoose.connect(url)
+	if ( process.argv.length === 3) {
+		console.log('Phonebook:')
+		Person
+	  		.find({})
+	  		.then(persons => {
+		  		persons.map(person => console.log(`${person.name} ${person.number}`))
+		    mongoose.connection.close()
+	  	})
+	} else {
+		const person = new Person({
+		  name: `${process.argv[3]}`,
+		  number: `${process.argv[4]}`,
+		})
 
-const noteSchema = new mongoose.Schema({
-  name: String,
-  number: String,
-},{collection: 'persons'})
-
-const Person = mongoose.model('Person', noteSchema)
-
-const person = new Person({
-  name: 'Sean Heckathorne',
-  number: '315-857-3123',
-})
-
-person.save().then(result => {
-  console.log('person saved!')
-  mongoose.connection.close()
-})
+		person.save().then(result => {
+		  console.log('person saved!')
+		  mongoose.connection.close()	
+		})
+	}
+}
