@@ -5,6 +5,7 @@ const App = () => {
   const [persons, setPersons] = useState([])
   const [ newPerson, setNewPerson ] = useState({name: '', number: ''})
   const [ filter, setFilter ] = useState('')
+  const [ notification, setNotification ] = useState({ type: '', message: null })
 
   useEffect(() => {
     personService
@@ -28,7 +29,7 @@ const App = () => {
 
   const handleClick = (e) => {
     e.preventDefault()
-    
+    /*
     if ( persons.find(person => person.name.toLowerCase() === newPerson.name.toLowerCase()) ) {
       if ( window.confirm(`${newPerson.name} has already been added to the phonebook, replace the old number with a new one`) ) {
         const id = persons.find(person => person.name.toLowerCase() === newPerson.name.toLowerCase()).id
@@ -39,15 +40,23 @@ const App = () => {
           })
       }
       setNewPerson({name: '', number: ''})
-    } else {
-      personService
-        .create(newPerson)
-        .then(returnedPerson => {
-          setPersons(persons.concat(returnedPerson))
-          setNewPerson({name: '', number: ''})
-        }
-      )
-    }
+
+    } else {*/
+    personService
+      .create(newPerson)
+      .then(returnedPerson => {
+        setPersons(persons.concat(returnedPerson))
+        setNewPerson({name: '', number: ''})
+      })
+      .catch(error => {
+        const errorString = error.response.data.substring(error.response.data.indexOf('ValidationError: ') + 17, error.response.data.indexOf(' Value: '))
+        
+        setNotification({ type: 'error', message: `${errorString}` })
+        setTimeout(() => {
+         setNotification({ type: '', message: null })
+        }, 5000)
+      })
+    //}
   }
 
   const deletePerson = (id) => {
@@ -65,6 +74,7 @@ const App = () => {
 
   return (
     <div>
+      <Notification type={notification.type} message={notification.message} />
       <h2>Phonebook</h2>
       <Filter 
         filter={filter} 
@@ -117,5 +127,17 @@ const People = ({ persons, deletePerson}) => {
 }
 
 const Number = ({ person, handleDelete }) => <p>{person.name} {person.number} <button onClick={handleDelete}>delete</button></p> 
+
+const Notification = ({ type, message }) => {
+  if (message === null) {
+    return null
+  }
+
+  return (
+    <div className={type}>
+      {message}
+    </div>
+  )
+}
 
 export default App
